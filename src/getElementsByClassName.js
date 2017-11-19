@@ -10,20 +10,17 @@
   var result = [];
   
   	function getClassForNode(node){
-  		var classString = node.getAttribute && node.getAttribute('class');
-  		if(classString){
-		    if(classString.split(" ").indexOf(className) !== -1){
-		      result.push(node);
-		    }
-		}
-	    if(node.hasChildNodes()){
-	      var children = node.childNodes;
-	      for(var i = 0; i < children.length; i++){
-	      	var child = children[i];
-	      	getClassForNode(child);
-	       }
+  	  if(node.classList && node.classList.contains(className)){
+	    result.push(node);
+	  }
+   	  if(node.hasChildNodes()){
+	    var children = node.childNodes;
+	    for(var i = 0; i < children.length; i++){
+	      var child = children[i];
+	      getClassForNode(child);
 	    }
 	  }
+	}
   getClassForNode(node);
   return result;
 }
