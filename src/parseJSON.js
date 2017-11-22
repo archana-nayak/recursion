@@ -1,7 +1,3 @@
-// this is what you would do if you were one to do things the easy way:
-// var parseJSON = JSON.parse;
-
-// but you're not, so you'll write it from scratch:
 var parseJSON = function(json) {
   // your code goes here
   //breadown the string and get next character from the 
@@ -34,24 +30,31 @@ var object = function(){
   if(ch === "}"){
     return obj;
   }
-  if(ch === "\""){
-    var key = string();
-    if((ch = nextToken()) !== ":"){
-      console.log("In object, check for ':' " + ch);
-      throw new SyntaxError("Malformed object in string");
+  while(ch){
+    if(ch === "\""){
+      var key = string();
+      if((ch = nextToken()) !== ":"){
+        console.log("In object, check for ':' " + ch);
+        throw new SyntaxError("Malformed object in string");
+      }
+      whiteSpace();
+      console.log("In Obejct, After whitespace, ch is  " + ch);
+      obj[key] = parse();
+      console.log("In obect, the typeof value generated is " + typeof obj[key]);
+      if(ch !== "}"){
+        ch = nextToken();
+      }
+      if(ch === "}"){
+        return obj;
+      }
+      console.log("In object, after first key, value of ch is " + ch);
+      if(ch === ","){
+        ch = nextToken();
+      }
+      whiteSpace();
+    }else{
+      throw new SyntaxError();
     }
-    whiteSpace();
-    console.log("In Obejct, After whitespace, ch is  " + ch);
-    obj[key] = parse();
-    console.log("In obect, the typeof value generated is " + typeof obj[key]);
-    if(ch !== "}"){
-      ch = nextToken();
-    }
-    if(ch === "}"){
-      return obj;
-    }
-  }else{
-    throw new SyntaxError();
   }
 };//end of object function
 
@@ -69,8 +72,31 @@ var parse = function(){
     }
   }
 };
-
+  // '[1, 0, -1, -0.3, 0.3, 1343.32, 3345, 0.00011999999999999999]'
 var array = function(){
+  var arr = [];
+  var element;
+  if(ch === "["){
+    ch = nextToken();
+    if(ch === "]"){
+      return arr;
+    }
+    console.log("In array, ch after first [ is " + ch);
+    while(ch){
+      // whiteSpace();
+      element = parse();
+      arr.push(element);
+      console.log("In array, ch after first element is " + ch);
+      if(ch === "]"){
+        return arr;
+      }
+      whiteSpace();
+      console.log("In array, ch after whitespace is " + ch);
+      if(ch === ","){
+        ch = nextToken();
+      }
+    }
+  }
   
 };//end of array function
 
@@ -151,3 +177,12 @@ return parse();
 
 };//end of JSON parse function
 
+function assertEqual(actual,expected,testName){
+  actual = JSON.stringify(actual);
+  expected = JSON.stringify(expected);
+  if(actual === expected){
+    console.log("pass  " + actual + " matches " + expected);
+  }else{
+    console.log('failed[' + testName + '] expected ' + expected +' but got ' + actual);
+  }
+}
