@@ -5,17 +5,23 @@ var parseJSON = function(json) {
   //Encapsulates the work of breaking down the string to get at 
   //each character;
   //var error = "Invalid String";
-  var escape =[];
-  
-
+  //A hash that allows you to check for escape characters when 
+  //parsing string
+  var escape ={
+    "\"" : "\"",
+    "\\" : "\\",
+    "\/" : "\/",
+    "b"  : "\b",
+    "f"  : "\f",
+    "n"  : "\n",
+    "t"  :"\t"
+  };
 
 var whiteSpace = function(){
   console.log("In whiteSpace, ch is " + ch);
-  ch = nextToken();
-  console.log("In whiteSpace after :, ch is " + ch);
-  while(ch <= " " ){
+  while(ch && ch <= " " ){
     ch = nextToken();
-    console.log("In whiteSpace, ch: " + ch);
+    // console.log("In whiteSpace, ch: " + ch);
   }
   console.log("End of whiteSpace, ch is " + ch);
 };//end of whiteSpace function
@@ -28,29 +34,38 @@ var object = function(){
     return new SyntaxError("String does not follow the grammar expected of input string");
   }
   if(ch === "}"){
+    ch = nextToken();
     return obj;
   }
   while(ch){
     if(ch === "\""){
       var key = string();
-      if((ch = nextToken()) !== ":"){
+      console.log("after string in object, ch is " + ch);
+      whiteSpace();
+      if(ch  !== ":"){
         console.log("In object, check for ':' " + ch);
         throw new SyntaxError("Malformed object in string");
       }
+      ch = nextToken();
       whiteSpace();
       console.log("In Obejct, After whitespace, ch is  " + ch);
       obj[key] = parse();
       console.log("In obect, the typeof value generated is " + typeof obj[key]);
+      console.log("In object, the value returned is " + JSON.stringify(obj[key]));
       if(ch !== "}"){
         ch = nextToken();
+        console.log("In object, ch after parse() " + ch);
       }
       if(ch === "}"){
+        ch = nextToken();
+        console.log("In object, ch before returning an object value " + ch);
         return obj;
       }
       console.log("In object, after first key, value of ch is " + ch);
       if(ch === ","){
         ch = nextToken();
       }
+      console.log("In object, ch after , is " + ch);
       whiteSpace();
     }else{
       throw new SyntaxError();
@@ -74,6 +89,7 @@ var parse = function(){
 };
   // '[1, 0, -1, -0.3, 0.3, 1343.32, 3345, 0.00011999999999999999]'
 var array = function(){
+  console.log("In array, value of ch is " + ch);
   var arr = [];
   var element;
   if(ch === "["){
@@ -87,14 +103,18 @@ var array = function(){
       element = parse();
       arr.push(element);
       console.log("In array, ch after first element is " + ch);
+      if(ch !== "]"){
+        ch = nextToken();
+      }
       if(ch === "]"){
         return arr;
       }
-      whiteSpace();
+      // whiteSpace();
       console.log("In array, ch after whitespace is " + ch);
       if(ch === ","){
         ch = nextToken();
       }
+      whiteSpace();
     }
   }
   
@@ -105,15 +125,21 @@ var string = function(){
   ch = nextToken();
   console.log("In string, ch: " + ch);
   if(ch === "\""){
+    ch = nextToken();
     return result;
   }
-  while(ch !== "\""){
-    result += ch;
-    ch = nextToken();
-    console.log("ch: " + ch);
+  while(ch){
+    if(ch !== "\""){
+      result += ch;
+      ch = nextToken();
+      console.log("ch after each result: " + ch);
+    }else{
+      console.log("In string, result: " + result);
+      ch = nextToken();
+      return result;
+    }
   }
-  console.log("In string, result: " + result);
-  return result;
+  
 };//end of string function
 
 var number = function (){
@@ -173,6 +199,7 @@ function checkCharEquals(char){
 
 var nextToken = getNextToken(json);
 var ch = nextToken();
+console.log("in main function, value of first character is " + ch);
 return parse();
 
 };//end of JSON parse function
